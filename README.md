@@ -1,2 +1,3 @@
-# cloud-native-samples
-Cloud Native samples
+# Cloud Native samples
+
+Cloud Native samples.
