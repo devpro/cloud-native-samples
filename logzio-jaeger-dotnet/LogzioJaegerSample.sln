@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "src\WebApi\WebApi.csproj", "{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Libraries", "1 - Libraries", "{BA602E63-39AD-45EC-A363-735E8616A572}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Solution Items", "0 - Solution Items", "{902A5AF2-5248-43C6-844F-D4866A4B06BF}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Applications", "2 - Applications", "{5341DD21-6A79-4E6B-8790-D66C6E9223B5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Debug|x64.Build.0 = Debug|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Debug|x86.Build.0 = Debug|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Release|x64.ActiveCfg = Release|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Release|x64.Build.0 = Release|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Release|x86.ActiveCfg = Release|Any CPU
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D76EB8FA-7536-4AAA-950A-86AB44EFA91E} = {5341DD21-6A79-4E6B-8790-D66C6E9223B5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AFE4DB0A-A80B-4F71-A9DB-8F2B73D80995}
+	EndGlobalSection
+EndGlobal

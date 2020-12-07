@@ -1,0 +1,113 @@
+apiVersion:  apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-logzio-collector
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+spec:
+  selector:
+    matchLabels:
+      app: jaeger
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: collector
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: collector
+    spec:
+      containers:
+      - image: logzio/jaeger-logzio-collector:latest
+        name: jaeger-logzio-collector
+        ports:
+        - containerPort: 14268
+          protocol: TCP
+        - containerPort: 9411
+          protocol: TCP
+        - containerPort: 14250
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: "/"
+            port: 14269
+        env:
+        - name: ACCOUNT_TOKEN
+          # Replace with the Tracing account token from Logz.io in Manage accounts > Distributed Tracing
+          value: <VALUE>
+        - name: REGION
+          # Replace with the 2-letter code for your region from the Logz.io Regions and Listener hosts table or from your Account settings page
+          value: <REGION>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-logzio-collector
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+spec:
+  ports:
+  - name: jaeger-health-check
+    port: 14269
+    protocol: TCP
+    targetPort: 14269
+  - name: jaeger-collector-http
+    port: 14268
+    protocol: TCP
+    targetPort: 14268
+  - name: jaeger-collector-zipkin
+    port: 9411
+    protocol: TCP
+    targetPort: 9411
+  - name: jaeger-collector-grpc
+    port: 14250
+    protocol: TCP
+    targetPort: 14250
+  selector:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: jaeger-agent
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: agent
+spec:
+  selector:
+    matchLabels:
+      app: jaeger
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: agent
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: agent
+    spec:
+      containers:
+      - name: jaeger-agent
+        # This specific version has been tested by Logz.io. If you opt for a later version, the Logz.io recommendation is to test before you deploy. 
+        image: jaegertracing/jaeger-agent:1.18.0
+        args: ["--reporter.grpc.host-port=jaeger-logzio-collector:14250"]
+        ports:
+          - containerPort: 5775
+            protocol: UDP
+          - containerPort: 6831
+            protocol: UDP
+          - containerPort: 6832
+            protocol: UDP
+          - containerPort: 5778
+            protocol: TCP
