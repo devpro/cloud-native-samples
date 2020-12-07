@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>LogzioJaegerSample.Lib.DistributedTracing</AssemblyName>
+    <RootNamespace>LogzioJaegerSample.Lib.DistributedTracing</RootNamespace>
+    <ProjectGuid>{1E79CCB1-E2FB-43FA-A1AB-A3DC108E6D4D}</ProjectGuid>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jaeger" Version="0.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

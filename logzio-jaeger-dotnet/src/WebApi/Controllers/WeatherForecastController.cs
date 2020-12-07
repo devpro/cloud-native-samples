@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LogzioJaegerSample.Lib.DistributedTracing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -15,39 +16,22 @@ namespace WebApi.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILoggerFactory _loggerFactory;
+        
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly OpenTracing.ITracer _jaegerTracer;
 
-        public WeatherForecastController(ILoggerFactory loggerFactory, ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IOpenTracingContext openTracingContext)
         {
-            _loggerFactory = loggerFactory;
             _logger = logger;
+            _jaegerTracer = openTracingContext.Tracer;
         }
-
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-            // POC for traces
+            #region POC
 
-            Jaeger.Configuration.SenderConfiguration.DefaultSenderResolver = new Jaeger.Senders.SenderResolver(_loggerFactory)
-                .RegisterSenderFactory<Jaeger.Senders.Thrift.ThriftSenderFactory>();
-
-            Jaeger.Configuration config = Jaeger.Configuration.FromEnv(_loggerFactory);
-
-            var samplerConfiguration = new Jaeger.Configuration.SamplerConfiguration(_loggerFactory)
-                .WithType(Jaeger.Samplers.ConstSampler.Type)
-                .WithParam(1);
-
-            var reporterConfiguration = new Jaeger.Configuration.ReporterConfiguration(_loggerFactory)
-                .WithLogSpans(true);
-
-            OpenTracing.ITracer tracer = config
-                .WithSampler(samplerConfiguration)
-                .WithReporter(reporterConfiguration)
-                .GetTracer();
-
-            OpenTracing.ISpanBuilder builder = tracer.BuildSpan("myop");
+            OpenTracing.ISpanBuilder builder = _jaegerTracer.BuildSpan("myop");
 
             OpenTracing.ISpan span = builder.Start();
 
@@ -55,7 +39,7 @@ namespace WebApi.Controllers
 
             span.Finish();
 
-            // End of POC
+            #endregion
 
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast

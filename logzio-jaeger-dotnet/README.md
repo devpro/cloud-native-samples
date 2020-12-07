@@ -17,6 +17,7 @@ Components:
 
 References:
 
+- OpenTracing: [specification](https://github.com/opentracing/specification), [C#](https://github.com/opentracing/opentracing-csharp)
 - Jaeger: [code](https://github.com/jaegertracing/jaeger)
   - [Deployment](https://www.jaegertracing.io/docs/1.21/deployment/)
     - Operator for Kubernetes: [docs](https://www.jaegertracing.io/docs/1.21/operator/), [code](https://github.com/jaegertracing/jaeger-operator)
@@ -24,6 +25,7 @@ References:
   - [Client Libraries](https://www.jaegertracing.io/docs/1.21/client-libraries/#supported-libraries)
     - [C# client (tracer) for Jaeger](https://github.com/jaegertracing/jaeger-client-csharp)
 - [Deploying components in your system](https://docs.logz.io/user-guide/distributed-tracing/deploying-components)
+  - [logzio/jaeger-logzio](https://github.com/logzio/jaeger-logzio)
   - [Kubernetes deployment reference](https://docs.logz.io/user-guide/distributed-tracing/k8s-deployment)
 - [Setting up instrumentation and ingesting traces](https://docs.logz.io/user-guide/distributed-tracing/tracing-instrumentation.html)
   - [OpenTracing Tutorial - C#](https://github.com/yurishkuro/opentracing-tutorial/tree/master/csharp)
@@ -42,6 +44,14 @@ References:
   - Minimalist code to be added in a Controller to have a quick check
 
   ```csharp
+
+    private readonly ILoggerFactory _loggerFactory;
+
+    public WeatherForecastController(ILoggerFactory loggerFactory)
+    {
+        _loggerFactory = loggerFactory;
+    }
+
     [HttpGet]
     public IEnumerable<WeatherForecast> Get()
     {
