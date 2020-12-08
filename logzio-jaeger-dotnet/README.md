@@ -27,6 +27,7 @@ References:
 - [Deploying components in your system](https://docs.logz.io/user-guide/distributed-tracing/deploying-components)
   - [logzio/jaeger-logzio](https://github.com/logzio/jaeger-logzio)
   - [Kubernetes deployment reference](https://docs.logz.io/user-guide/distributed-tracing/k8s-deployment)
+  - [Jaeger Essentials: Best Practices for Deploying Jaeger on Kubernetes in Production](https://logz.io/blog/jaeger-kubernetes-best-practices/) - Aug 7th, 2020
 - [Setting up instrumentation and ingesting traces](https://docs.logz.io/user-guide/distributed-tracing/tracing-instrumentation.html)
   - [OpenTracing Tutorial - C#](https://github.com/yurishkuro/opentracing-tutorial/tree/master/csharp)
 
@@ -103,10 +104,8 @@ docker run -e ACCOUNT_TOKEN=<SHIPPING-TOKEN> -e REGION=<REGION> \
   logzio/jaeger-logzio-collector:latest
 
 # Grab collector IP
-docker ps
-# on Linux
-docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER-ID>
-# on Windows look at C:\Windows\System32\drivers\etc\hosts for the host.docker.internal entry
+# on Linux: docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER-ID>
+# on Windows: look at C:\Windows\System32\drivers\etc\hosts for the host.docker.internal entry
 
 # Jaeger agent
 docker run --rm -p6831:6831/udp -p6832:6832/udp -p5778:5778/tcp -p5775:5775/udp jaegertracing/jaeger-agent:1.21 --reporter.grpc.host-port=<COLLECTOR-IP>:14250

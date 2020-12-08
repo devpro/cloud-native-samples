@@ -8,6 +8,5 @@ namespace LogzioJaegerSample.Lib.DistributedTracing
         string ServiceName { get; }
         string AgentHost { get; }
         int AgentPort { get; }
-        Jaeger.Configuration BuildJaegerConfiguration(ILoggerFactory loggerFactory);
     }
 }

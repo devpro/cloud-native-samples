@@ -1,10 +1,11 @@
-﻿using LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection;
+﻿using LogzioJaegerSample.Lib.DistributedTracing;
+using LogzioJaegerSample.Lib.DistributedTracing.Builder;
+using LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace WebApi
@@ -29,7 +30,7 @@ namespace WebApi
             services.AddJaeger(_configuration, "Jaeger");
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IJaegerClientConfiguration jaegerClientConfiguration)
         {
             if (env.IsDevelopment())
             {
@@ -43,6 +44,8 @@ namespace WebApi
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseJaeger(jaegerClientConfiguration);
 
             app.UseEndpoints(endpoints =>
             {
