@@ -1,14 +1,16 @@
 ﻿using LogzioJaegerSample.Lib.DistributedTracing;
-using LogzioJaegerSample.Lib.DistributedTracing.Builder;
-using LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection;
 
-namespace WebApi
+namespace LogzioJaegerSample.WebApi
 {
     public class Startup
     {
@@ -26,6 +28,16 @@ namespace WebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
             });
+
+            services.AddOpenTelemetryTracing((builder) => builder
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(_configuration.GetValue<string>("Jaeger:ServiceName")))
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddJaegerExporter(jaegerOptions =>
+                {
+                    jaegerOptions.AgentHost = _configuration.GetValue<string>("Jaeger:AgentHost");
+                    jaegerOptions.AgentPort = _configuration.GetValue<int>("Jaeger:AgentPort");
+                }));
 
             services.AddJaeger(_configuration, "Jaeger");
         }
@@ -45,7 +57,7 @@ namespace WebApi
 
             app.UseAuthorization();
 
-            app.UseJaeger(jaegerClientConfiguration);
+            //app.UseJaeger(jaegerClientConfiguration);
 
             app.UseEndpoints(endpoints =>
             {

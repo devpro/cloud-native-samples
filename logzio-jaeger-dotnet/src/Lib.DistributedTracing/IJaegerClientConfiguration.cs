@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace LogzioJaegerSample.Lib.DistributedTracing
+﻿namespace LogzioJaegerSample.Lib.DistributedTracing
 {
     public interface IJaegerClientConfiguration
     {

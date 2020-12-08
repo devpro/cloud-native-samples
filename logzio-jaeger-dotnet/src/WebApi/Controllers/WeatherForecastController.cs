@@ -5,7 +5,7 @@ using LogzioJaegerSample.Lib.DistributedTracing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace WebApi.Controllers
+namespace LogzioJaegerSample.WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -16,14 +16,14 @@ namespace WebApi.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        
+
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly OpenTracing.ITracer _jaegerTracer;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger, IOpenTracingContext openTracingContext)
         {
             _logger = logger;
-            _jaegerTracer = openTracingContext.Tracer;
+            //_jaegerTracer = openTracingContext.Tracer;
         }
 
         [HttpGet]
@@ -31,13 +31,13 @@ namespace WebApi.Controllers
         {
             #region POC
 
-            OpenTracing.ISpanBuilder builder = _jaegerTracer.BuildSpan("myop");
+            //OpenTracing.ISpanBuilder builder = _jaegerTracer.BuildSpan("myop");
 
-            OpenTracing.ISpan span = builder.Start();
+            //OpenTracing.ISpan span = builder.Start();
 
-            span.Log("toto");
+            //span.Log("toto");
 
-            span.Finish();
+            //span.Finish();
 
             #endregion
 

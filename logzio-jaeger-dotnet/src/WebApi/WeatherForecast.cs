@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebApi
+namespace LogzioJaegerSample.WebApi
 {
     public class WeatherForecast
     {

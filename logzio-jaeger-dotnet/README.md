@@ -6,39 +6,42 @@
 
 [Jaeger](https://www.jaegertracing.io/) is an open source, end-to-end distributed tracing, and will be used to feed data to logz.io.
 
-<img src="https://dytvr9ot2sszz.cloudfront.net/logz-docs/distributed-tracing/tracing_architecture.png" style="width:50%">
+### Components
 
-Components:
+<img src="https://dytvr9ot2sszz.cloudfront.net/logz-docs/distributed-tracing/tracing_architecture.png" style="width:50%">
 
 - .NET Core Web Application (Jaeger client library): Kubernetes Pod
 - Jaeger Agent: Kubernetes Deployment/Service
 - Jaeger Collector: Kubernetes DaemonSet
 - Logz.io Platform: SaaS
 
-References:
+### Documentation
 
-- OpenTracing: [specification](https://github.com/opentracing/specification), [C#](https://github.com/opentracing/opentracing-csharp)
-- Jaeger: [code](https://github.com/jaegertracing/jaeger)
+- [**OpenTelemetry**](https://opentelemetry.io/): [specification](https://github.com/open-telemetry/opentelemetry-specification), [.NET](https://github.com/open-telemetry/opentelemetry-dotnet) (_Dec 8th, 2020: 1.0.0-rc1.1 available_)
+  - [Propagators API](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/context/api-propagators.md)
+- [**OpenTracing**](https://opentracing.io/): [specification](https://github.com/opentracing/specification), [.NET](https://github.com/opentracing/opentracing-csharp)
+- [**Jaeger**](https://www.jaegertracing.io): [code](https://github.com/jaegertracing/jaeger)
   - [Deployment](https://www.jaegertracing.io/docs/1.21/deployment/)
     - Operator for Kubernetes: [docs](https://www.jaegertracing.io/docs/1.21/operator/), [code](https://github.com/jaegertracing/jaeger-operator)
     - [Helm Charts](https://github.com/jaegertracing/helm-charts)
   - [Client Libraries](https://www.jaegertracing.io/docs/1.21/client-libraries/#supported-libraries)
     - [C# client (tracer) for Jaeger](https://github.com/jaegertracing/jaeger-client-csharp)
-- [Deploying components in your system](https://docs.logz.io/user-guide/distributed-tracing/deploying-components)
-  - [logzio/jaeger-logzio](https://github.com/logzio/jaeger-logzio)
-  - [Kubernetes deployment reference](https://docs.logz.io/user-guide/distributed-tracing/k8s-deployment)
-  - [Jaeger Essentials: Best Practices for Deploying Jaeger on Kubernetes in Production](https://logz.io/blog/jaeger-kubernetes-best-practices/) - Aug 7th, 2020
-- [Setting up instrumentation and ingesting traces](https://docs.logz.io/user-guide/distributed-tracing/tracing-instrumentation.html)
-  - [OpenTracing Tutorial - C#](https://github.com/yurishkuro/opentracing-tutorial/tree/master/csharp)
+- [**Logz.io**](https://logz.io)
+  - [Deploying components in your system](https://docs.logz.io/user-guide/distributed-tracing/deploying-components)
+    - [logzio/jaeger-logzio](https://github.com/logzio/jaeger-logzio)
+    - [Kubernetes deployment reference](https://docs.logz.io/user-guide/distributed-tracing/k8s-deployment)
+    - [Jaeger Essentials: Best Practices for Deploying Jaeger on Kubernetes in Production](https://logz.io/blog/jaeger-kubernetes-best-practices/) - Aug 7th, 2020
+  - [Setting up instrumentation and ingesting traces](https://docs.logz.io/user-guide/distributed-tracing/tracing-instrumentation.html)
+    - [OpenTracing Tutorial - C#](https://github.com/yurishkuro/opentracing-tutorial/tree/master/csharp)
 
 ## Getting started
 
-### Setup Logz.io account
+### Setup a Logz.io account
 
 - Create a free account on [logz.io](https://logz.io/freetrial/) (you may have issues with popup/privacy blocker such as DuckDuckGo)
 - Make sure you are on the right Logz.io instance then retrieve your [region code](https://docs.logz.io/user-guide/accounts/account-region.html#available-regions) and token from [your account page](https://app-eu.logz.io/#/dashboard/settings/general)
 
-### Demo .NET web app
+### Use demo .NET web app
 
 - Use the existing solution or create a new project
   - You need to add the NuGet package reference to `Jaeger`
@@ -93,7 +96,7 @@ docker network create net-logzio
 docker network ls
 
 # Jaeger collector
-docker run -e ACCOUNT_TOKEN=<SHIPPING-TOKEN> -e REGION=<REGION> \
+docker run -e ACCOUNT_TOKEN=<ACCOUNT-TOKEN> -e REGION=<REGION> \
   --network=net-logzio \
   --name=jaeger-logzio-collector \
   -p 14268:14268 \
@@ -108,11 +111,11 @@ docker run -e ACCOUNT_TOKEN=<SHIPPING-TOKEN> -e REGION=<REGION> \
 # on Windows: look at C:\Windows\System32\drivers\etc\hosts for the host.docker.internal entry
 
 # Jaeger agent
-docker run --rm -p6831:6831/udp -p6832:6832/udp -p5778:5778/tcp -p5775:5775/udp jaegertracing/jaeger-agent:1.21 --reporter.grpc.host-port=<COLLECTOR-IP>:14250
+docker run --rm -p6831:6831/udp -p6832:6832/udp -p5778:5778/tcp -p5775:5775/udp jaegertracing/jaeger-agent:1.21 --reporter.grpc.host-port=<COLLECTOR-IP-OR-HOSTNAME>:14250
 ```
 
 - Run a quick test with the .NET web app
-  - Add environment variables in `launchSettings.json` (host.docker.internal will work on Windows, to be replaced in Linux)
+  - Add environment variables in `launchSettings.json` (`host.docker.internal` will work on Windows, to be replaced in Linux)
 
   ```json
     "WebApi": {
@@ -124,11 +127,30 @@ docker run --rm -p6831:6831/udp -p6832:6832/udp -p5778:5778/tcp -p5775:5775/udp 
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "JAEGER_SERVICE_NAME": "MY_DEMO",
-        "JAEGER_AGENT_HOST": "host.docker.internal",
+        "JAEGER_AGENT_HOST": "<AGENT-IP-OR-HOSTNAME>",
         "JAEGER_AGENT_PORT": "6831"
       }
     }
   ```
+
+### Run locally with Docker Compose
+
+- Create or review `local.env` file
+
+```env
+LOGZIO_ACCOUNT_TOKEN=xxxxxxx
+LOGZIO_REGION_CODE=xx
+```
+
+- Use Docker compose to run all containers
+
+```bash
+# create
+docker-compose --env-file ./local.env up
+
+# delete
+docker-compose down
+```
 
 ### Run in Kubernetes
 
@@ -198,4 +220,6 @@ kubectl delete deployment jaegerwebapidemo
 
 ## References
 
-- Dev Mentors: [youtube](https://www.youtube.com/watch?v=toXFRBtv4fg) (source code: [Pacco](https://github.com/devmentors/Pacco), [Convey.Tracing.Jaeger](https://github.com/convey-stack/Convey.Tracing.Jaeger))
+- ASP.NET Core: [docs](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-5.0), [code](https://github.com/dotnet/aspnetcore)
+  - [Write custom ASP.NET Core middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write?view=aspnetcore-5.0)
+- Dev Mentors: [youtube](https://www.youtube.com/watch?v=toXFRBtv4fg) (source code: [Pacco](https://github.com/devmentors/Pacco), [Convey](https://github.com/snatch-dev/Convey), [Convey.Tracing.Jaeger](https://github.com/convey-stack/Convey.Tracing.Jaeger))
