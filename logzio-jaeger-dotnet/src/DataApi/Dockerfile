@@ -6,15 +6,15 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 COPY ["src/", "./"]
-RUN dotnet restore "WebApi/WebApi.csproj"
+RUN dotnet restore "DataApi/DataApi.csproj"
 COPY . .
-WORKDIR "/src/WebApi"
-RUN dotnet build "WebApi.csproj" -c Release -o /app/build
+WORKDIR "/src/DataApi"
+RUN dotnet build "DataApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "WebApi.csproj" -c Release -o /app/publish
+RUN dotnet publish "DataApi.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LogzioJaegerSample.WebApi.dll"]
+ENTRYPOINT ["dotnet", "LogzioJaegerSample.DataApi.dll"]

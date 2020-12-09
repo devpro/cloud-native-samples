@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using LogzioJaegerSample.Lib.DistributedTracing.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace LogzioJaegerSample.Lib.DistributedTracing
 {
@@ -6,14 +7,14 @@ namespace LogzioJaegerSample.Lib.DistributedTracing
     {
         private readonly ILoggerFactory _loggerFactory;
 
-        private readonly IJaegerClientConfiguration _clientConfiguration;
+        private readonly IDistributedTracingConfiguration _distributedTracingConfiguration;
 
         private readonly OpenTracing.ITracer _tracer;
 
-        public DefaultOpenTracingContext(ILoggerFactory loggerFactory, IJaegerClientConfiguration clientConfiguration)
+        public DefaultOpenTracingContext(ILoggerFactory loggerFactory, IDistributedTracingConfiguration distributedTracingConfiguration)
         {
             _loggerFactory = loggerFactory;
-            _clientConfiguration = clientConfiguration;
+            _distributedTracingConfiguration = distributedTracingConfiguration;
 
             _tracer = BuildTracer();
         }
@@ -22,7 +23,7 @@ namespace LogzioJaegerSample.Lib.DistributedTracing
 
         private OpenTracing.ITracer BuildTracer()
         {
-            if (!_clientConfiguration.IsEnabled)
+            if (!_distributedTracingConfiguration.IsEnabled)
             {
                 return new Jaeger.Tracer.Builder(nameof(DefaultOpenTracingContext))
                     .WithReporter(new Jaeger.Reporters.NoopReporter())
@@ -30,7 +31,7 @@ namespace LogzioJaegerSample.Lib.DistributedTracing
                     .Build();
             }
 
-            var config = BuildJaegerConfiguration(_loggerFactory, _clientConfiguration);
+            var config = BuildJaegerConfiguration(_loggerFactory, _distributedTracingConfiguration.Jaeger);
 
             Jaeger.Configuration.SenderConfiguration.DefaultSenderResolver = new Jaeger.Senders.SenderResolver(_loggerFactory)
                 .RegisterSenderFactory<Jaeger.Senders.Thrift.ThriftSenderFactory>();
@@ -39,21 +40,21 @@ namespace LogzioJaegerSample.Lib.DistributedTracing
         }
 
 
-        private Jaeger.Configuration BuildJaegerConfiguration(ILoggerFactory loggerFactory, IJaegerClientConfiguration clientConfiguration)
+        private Jaeger.Configuration BuildJaegerConfiguration(ILoggerFactory loggerFactory, JaegerConfiguration jaegerConfiguration)
         {
             var samplerConfiguration = new Jaeger.Configuration.SamplerConfiguration(loggerFactory)
                 .WithType(Jaeger.Samplers.ConstSampler.Type)
                 .WithParam(1);
 
             var senderConfiguration = new Jaeger.Configuration.SenderConfiguration(loggerFactory)
-                .WithAgentHost(clientConfiguration.AgentHost)
-                .WithAgentPort(clientConfiguration.AgentPort);
+                .WithAgentHost(jaegerConfiguration.AgentHost)
+                .WithAgentPort(jaegerConfiguration.AgentPort);
 
             var reporterConfiguration = new Jaeger.Configuration.ReporterConfiguration(loggerFactory)
                 .WithLogSpans(true)
                 .WithSender(senderConfiguration);
 
-            var config = new Jaeger.Configuration(clientConfiguration.ServiceName, loggerFactory)
+            var config = new Jaeger.Configuration(jaegerConfiguration.ServiceName, loggerFactory)
                 .WithSampler(samplerConfiguration)
                 .WithReporter(reporterConfiguration);
 

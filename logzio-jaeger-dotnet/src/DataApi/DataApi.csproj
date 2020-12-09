@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>LogzioJaegerSample.WebApi</AssemblyName>
-    <RootNamespace>LogzioJaegerSample.WebApi</RootNamespace>
+    <AssemblyName>LogzioJaegerSample.DataApi</AssemblyName>
+    <RootNamespace>LogzioJaegerSample.DataApi</RootNamespace>
     <ProjectGuid>{D76EB8FA-7536-4AAA-950A-86AB44EFA91E}</ProjectGuid>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <IsPackable>false</IsPackable>
@@ -12,10 +12,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0" NoWarn="NU1605" />
-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.0.0-rc1.1" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc1.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc1.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 

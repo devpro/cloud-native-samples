@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace LogzioJaegerSample.Lib.DistributedTracing.Middleware
 {
-    public class JaegerHttpMiddleware
+    public class OpenTracingHttpMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public JaegerHttpMiddleware(RequestDelegate next)
+        public OpenTracingHttpMiddleware(RequestDelegate next)
         {
             _next = next;
         }

@@ -31,7 +31,7 @@ services:
   dataapi:
     build:
       context: .
-      dockerfile: ./src/WebApi/Dockerfile
+      dockerfile: ./src/DataApi/Dockerfile
     image: logziojaegersample-dataapi
     networks:
       - net-logzio

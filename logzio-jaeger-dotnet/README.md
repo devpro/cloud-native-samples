@@ -97,7 +97,6 @@ docker network ls
 
 # Jaeger collector
 docker run -e ACCOUNT_TOKEN=<ACCOUNT-TOKEN> -e REGION=<REGION> \
-  --network=net-logzio \
   --name=jaeger-logzio-collector \
   -p 14268:14268 \
   -p 9411:9411 \
@@ -118,7 +117,7 @@ docker run --rm -p6831:6831/udp -p6832:6832/udp -p5778:5778/tcp -p5775:5775/udp 
   - Add environment variables in `launchSettings.json` (`host.docker.internal` will work on Windows, to be replaced in Linux)
 
   ```json
-    "WebApi": {
+    "DataApi": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
@@ -172,29 +171,29 @@ kubectl delete -f kubernetes/manifest.yml
 - Run the .NET application directly
 
 ```bash
-dotnet run -p src/WebApi
+dotnet run -p src/DataApi
 ```
 
 - Run the .NET application in Docker (for .NET 5.0 see [Update Docker images](https://docs.microsoft.com/en-us/aspnet/core/migration/31-to-50?view=aspnetcore-5.0&tabs=visual-studio#update-docker-images))
 
 ```bash
 # build a new image
-docker build . -t devprofr/jaegerwebapidemo -f src/WebApi/Dockerfile --no-cache
+docker build . -t devprofr/jaegerdataapidemo -f src/DataApi/Dockerfile --no-cache
 
 # run a container as a daemon on the new images with only HTTP
-docker run -d -p 8000:80 --name jaegerwebapidemo devprofr/jaegerwebapidemo:latest
+docker run -d -p 8000:80 --name jaegerdataapidemo devprofr/jaegerdataapidemo:latest
 
 # make sure the container is running fine (and open http://localhost:8000/WeatherForecast)
 docker ps
 
 # run a container interactively on the new image with HTTPS activated (tested on Windows with Linux containers)
-docker run --rm -it -p 8000:80 -p 8001:443 -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_ENVIRONMENT=Development -e ASPNETCORE_HTTPS_PORT=8001 -e ASPNETCORE_Kestrel__Certificates__Default__Password="password" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx -v %USERPROFILE%\.aspnet\https:/https/ --name jaegerwebapidemo devprofr/jaegerwebapidemo
+docker run --rm -it -p 8000:80 -p 8001:443 -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_ENVIRONMENT=Development -e ASPNETCORE_HTTPS_PORT=8001 -e ASPNETCORE_Kestrel__Certificates__Default__Password="password" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx -v %USERPROFILE%\.aspnet\https:/https/ --name jaegerdataapidemo devprofr/jaegerdataapidemo
 
 # if there is an issue (direct crash), replace the ENTRYPOINT line by CMD "/bin/bash" and run
-docker run -i -t -p 8080:80 devprofr/jaegerwebapidemo
+docker run -i -t -p 8080:80 devprofr/jaegerdataapidemo
 
 # push the image on a container registry
-docker push devprofr/jaegerwebapidemo:latest
+docker push devprofr/jaegerdataapidemo:latest
 
 # clean up
 docker system prune -f
@@ -204,18 +203,18 @@ docker system prune -f
 
 ```bash
 # create a deployment in the Kubernetes cluster
-kubectl create deployment jaegerwebapidemo --image=devprofr/jaegerwebapidemo:latest
+kubectl create deployment jaegerdataapidemo --image=devprofr/jaegerdataapidemo:latest
 
 # make sure everything is created ok
 kubectl get deploy,pod
 
 # expose the deployment and (optional) access it if you are using Minikube
-kubectl expose deployment jaegerwebapidemo --type=LoadBalancer --port 8000 --target-port 80 --name jaegerwebapidemo
-minikube service jaegerwebapidemo
+kubectl expose deployment jaegerdataapidemo --type=LoadBalancer --port 8000 --target-port 80 --name jaegerdataapidemo
+minikube service jaegerdataapidemo
 
 # clean-up
-kubectl delete service jaegerwebapidemo
-kubectl delete deployment jaegerwebapidemo
+kubectl delete service jaegerdataapidemo
+kubectl delete deployment jaegerdataapidemo
 ```
 
 ## References

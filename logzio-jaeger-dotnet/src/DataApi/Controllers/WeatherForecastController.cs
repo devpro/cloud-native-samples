@@ -5,7 +5,7 @@ using LogzioJaegerSample.Lib.DistributedTracing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace LogzioJaegerSample.WebApi.Controllers
+namespace LogzioJaegerSample.DataApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
