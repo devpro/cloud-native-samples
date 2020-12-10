@@ -15,11 +15,17 @@
 - Jaeger Collector: Kubernetes DaemonSet
 - Logz.io Platform: SaaS
 
+### OpenTelemetry terminology
+
+Class name | Namespace | OpenTelemetry representation | Comment
+---------- | --------- | ---------------------------- | -------
+ActivitySource | System.Diagnostics | [Tracer](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/trace/api.md#tracer) | The tracer is responsible for creating Spans
+Activity | System.Diagnostics | [Span](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/trace/api.md#span) | A Span represents a single operation within a trace. Spans can be nested to form a trace tree. Each trace contains a root span, which typically describes the entire operation and, optionally, one or more sub-spans for its sub-operations
+
 ### Documentation
 
 - [**OpenTelemetry**](https://opentelemetry.io/): [specification](https://github.com/open-telemetry/opentelemetry-specification), [.NET](https://github.com/open-telemetry/opentelemetry-dotnet) (_Dec 8th, 2020: 1.0.0-rc1.1 available_)
   - [Propagators API](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/context/api-propagators.md)
-- [**OpenTracing**](https://opentracing.io/): [specification](https://github.com/opentracing/specification), [.NET](https://github.com/opentracing/opentracing-csharp)
 - [**Jaeger**](https://www.jaegertracing.io): [code](https://github.com/jaegertracing/jaeger)
   - [Deployment](https://www.jaegertracing.io/docs/1.21/deployment/)
     - Operator for Kubernetes: [docs](https://www.jaegertracing.io/docs/1.21/operator/), [code](https://github.com/jaegertracing/jaeger-operator)
@@ -32,7 +38,7 @@
     - [Kubernetes deployment reference](https://docs.logz.io/user-guide/distributed-tracing/k8s-deployment)
     - [Jaeger Essentials: Best Practices for Deploying Jaeger on Kubernetes in Production](https://logz.io/blog/jaeger-kubernetes-best-practices/) - Aug 7th, 2020
   - [Setting up instrumentation and ingesting traces](https://docs.logz.io/user-guide/distributed-tracing/tracing-instrumentation.html)
-    - [OpenTracing Tutorial - C#](https://github.com/yurishkuro/opentracing-tutorial/tree/master/csharp)
+
 
 ## Getting started
 
@@ -152,6 +158,9 @@ docker-compose --env-file ./local.env up
 
 # stop
 docker-compose down
+
+# clean-up
+docker rm logziojaegercollector jaegeragent dataapi businessapi
 ```
 
 ### Run in Kubernetes
@@ -225,3 +234,5 @@ kubectl delete deployment jaegerdataapidemo
 - ASP.NET Core: [docs](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-5.0), [code](https://github.com/dotnet/aspnetcore)
   - [Write custom ASP.NET Core middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write?view=aspnetcore-5.0)
 - Dev Mentors: [youtube](https://www.youtube.com/watch?v=toXFRBtv4fg) (source code: [Pacco](https://github.com/devmentors/Pacco), [Convey](https://github.com/snatch-dev/Convey), [Convey.Tracing.Jaeger](https://github.com/convey-stack/Convey.Tracing.Jaeger))
+- [**OpenTracing**](https://opentracing.io/): [specification](https://github.com/opentracing/specification), [.NET](https://github.com/opentracing/opentracing-csharp)
+  - [OpenTracing Tutorial - C#](https://github.com/yurishkuro/opentracing-tutorial/tree/master/csharp)

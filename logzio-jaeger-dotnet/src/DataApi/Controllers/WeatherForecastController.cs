@@ -21,7 +21,7 @@ namespace LogzioJaegerSample.DataApi.Controllers
 
         private readonly OpenTracing.ITracer _jaegerTracer;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, IOpenTracingContext openTracingContext)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger/*, IOpenTracingContext openTracingContext*/)
         {
             _logger = logger;
             //_jaegerTracer = openTracingContext.Tracer;
@@ -41,6 +41,8 @@ namespace LogzioJaegerSample.DataApi.Controllers
             //span.Finish();
 
             #endregion
+
+            _logger.LogInformation("Generating random WeatherForecast data");
 
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecastDto

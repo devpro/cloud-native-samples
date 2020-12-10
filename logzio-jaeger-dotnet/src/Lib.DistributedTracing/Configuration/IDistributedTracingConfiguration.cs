@@ -1,4 +1,6 @@
-﻿namespace LogzioJaegerSample.Lib.DistributedTracing.Configuration
+﻿using OpenTelemetry.Exporter.Jaeger;
+
+namespace LogzioJaegerSample.Lib.DistributedTracing.Configuration
 {
     public enum DistributedTracingFramework
     {
@@ -14,10 +16,12 @@
     {
         bool IsEnabled { get; }
 
+        string ServiceName { get; }
+
         DistributedTracingFramework Framework { get; }
 
         DistributedTracingReporter Reporter { get; }
 
-        JaegerConfiguration Jaeger { get; }
+        JaegerExporterOptions Jaeger { get; }
     }
 }

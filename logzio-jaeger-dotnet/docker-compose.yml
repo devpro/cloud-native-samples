@@ -37,10 +37,11 @@ services:
       - net-logzio
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__LogLevel__Default=Information
       - DistributedTracing__IsEnabled=true
+      - DistributedTracing__ServiceName=My_DEMO_POC
       - DistributedTracing__Framework=OpenTelemetry
       - DistributedTracing__Reporter=Jaeger
-      - DistributedTracing__Jaeger__ServiceName=My_DEMO_POC
       - DistributedTracing__Jaeger__AgentHost=jaegeragent
       - DistributedTracing__Jaeger__AgentPort=6831
     ports:
@@ -56,11 +57,12 @@ services:
     networks:
       - net-logzio
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Development,
+      - Logging__LogLevel__Default=Information
       - DistributedTracing__IsEnabled=true
+      - DistributedTracing__ServiceName=My_DEMO_POC
       - DistributedTracing__Framework=OpenTelemetry
       - DistributedTracing__Reporter=Jaeger
-      - DistributedTracing__Jaeger__ServiceName=My_DEMO_POC
       - DistributedTracing__Jaeger__AgentHost=jaegeragent
       - DistributedTracing__Jaeger__AgentPort=6831
       - Infrastructure__DataApi__Url=http://dataapi:80

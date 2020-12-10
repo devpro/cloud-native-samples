@@ -15,18 +15,20 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
-
-            // configuration
-            services.AddSingleton(x => { return configuration; });
-
+            
             // telemetry
             if (configuration.IsEnabled
                 && configuration.Framework == DistributedTracingFramework.OpenTelemetry
                 && configuration.Reporter == DistributedTracingReporter.Jaeger)
             {
                 services.AddOpenTelemetryTracing((builder) => builder
-                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(configuration.Jaeger.ServiceName))
-                    .AddAspNetCoreInstrumentation()
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(configuration.ServiceName))
+                    .AddAspNetCoreInstrumentation(options =>
+                        options.Filter = (httpContext) =>
+                        {
+                            // do not trace calls to Swagger
+                            return !httpContext.Request.Path.StartsWithSegments("/swagger");
+                        })
                     .AddHttpClientInstrumentation()
                     .AddJaegerExporter(jaegerOptions =>
                     {
@@ -35,8 +37,15 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection
                     }));
             }
 
+            #region POC OpenTracing
+
+            // TODO: review configuration
+            //services.AddSingleton(x => { return configuration; });
+
             // TODO: review tracer
-            services.AddScoped<IOpenTracingContext, DefaultOpenTracingContext>();
+            //services.AddScoped<IOpenTracingContext, DefaultOpenTracingContext>();
+
+            #endregion
 
             return services;
         }

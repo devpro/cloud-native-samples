@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using OpenTelemetry.Exporter.Jaeger;
 
 namespace LogzioJaegerSample.Lib.DistributedTracing.Configuration
 {
@@ -6,11 +7,13 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.Configuration
     {
         public bool IsEnabled { get; set; } = false;
 
+        public string ServiceName { get; set; }
+
         public DistributedTracingFramework Framework { get; set; } = DistributedTracingFramework.OpenTelemetry;
 
         public DistributedTracingReporter Reporter { get; set; } = DistributedTracingReporter.Jaeger;
 
-        public JaegerConfiguration Jaeger { get; set; }
+        public JaegerExporterOptions Jaeger { get; set; }
 
         public static IDistributedTracingConfiguration Create(IConfiguration configuration, string sectionName)
         {

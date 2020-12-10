@@ -18,6 +18,8 @@ namespace LogzioJaegerSample.BusinessApi.Repositories
 
         public async Task<List<WeatherForecastDto>> FindAllAsync()
         {
+            Logger.LogInformation("Accessing WeatherForecast repository to do a find all request");
+
             return await GetAsync<List<WeatherForecastDto>>("WeatherForecast");
         }
     }

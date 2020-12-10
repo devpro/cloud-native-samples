@@ -31,7 +31,7 @@ namespace LogzioJaegerSample.Lib.DistributedTracing
                     .Build();
             }
 
-            var config = BuildJaegerConfiguration(_loggerFactory, _distributedTracingConfiguration.Jaeger);
+            var config = BuildJaegerConfiguration(_loggerFactory, _distributedTracingConfiguration);
 
             Jaeger.Configuration.SenderConfiguration.DefaultSenderResolver = new Jaeger.Senders.SenderResolver(_loggerFactory)
                 .RegisterSenderFactory<Jaeger.Senders.Thrift.ThriftSenderFactory>();
@@ -40,21 +40,21 @@ namespace LogzioJaegerSample.Lib.DistributedTracing
         }
 
 
-        private Jaeger.Configuration BuildJaegerConfiguration(ILoggerFactory loggerFactory, JaegerConfiguration jaegerConfiguration)
+        private Jaeger.Configuration BuildJaegerConfiguration(ILoggerFactory loggerFactory, IDistributedTracingConfiguration distributedTracingConfiguration)
         {
             var samplerConfiguration = new Jaeger.Configuration.SamplerConfiguration(loggerFactory)
                 .WithType(Jaeger.Samplers.ConstSampler.Type)
                 .WithParam(1);
 
             var senderConfiguration = new Jaeger.Configuration.SenderConfiguration(loggerFactory)
-                .WithAgentHost(jaegerConfiguration.AgentHost)
-                .WithAgentPort(jaegerConfiguration.AgentPort);
+                .WithAgentHost(distributedTracingConfiguration.Jaeger.AgentHost)
+                .WithAgentPort(distributedTracingConfiguration.Jaeger.AgentPort);
 
             var reporterConfiguration = new Jaeger.Configuration.ReporterConfiguration(loggerFactory)
                 .WithLogSpans(true)
                 .WithSender(senderConfiguration);
 
-            var config = new Jaeger.Configuration(jaegerConfiguration.ServiceName, loggerFactory)
+            var config = new Jaeger.Configuration(distributedTracingConfiguration.ServiceName, loggerFactory)
                 .WithSampler(samplerConfiguration)
                 .WithReporter(reporterConfiguration);
 

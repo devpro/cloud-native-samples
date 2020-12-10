@@ -24,6 +24,8 @@ namespace LogzioJaegerSample.BusinessApi.Controllers
         [HttpGet]
         public async Task<List<WeatherForecastDto>> Get()
         {
+            _logger.LogInformation("Processing business request to fetch all WeatherForecast");
+
             return await _weatherForecastRepository.FindAllAsync();
         }
     }
