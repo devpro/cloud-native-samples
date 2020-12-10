@@ -1,20 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>LogzioJaegerSample.BusinessApi</AssemblyName>
     <RootNamespace>LogzioJaegerSample.BusinessApi</RootNamespace>
     <ProjectGuid>{53B85C94-7135-4DFD-823A-8C2AE457CDD5}</ProjectGuid>
-    <UserSecretsId>e7d2c0fa-c08a-4ef2-a5e7-4ddaaf180041</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..</DockerfileContext>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.1" NoWarn="NU1605" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="Withywoods.Net.Http" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataApi\DataApi.csproj" />
     <ProjectReference Include="..\Lib.DistributedTracing\Lib.DistributedTracing.csproj" />
   </ItemGroup>
 

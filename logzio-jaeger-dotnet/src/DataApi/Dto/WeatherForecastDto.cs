@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace LogzioJaegerSample.BusinessApi
+namespace LogzioJaegerSample.DataApi.Dto
 {
-    public class WeatherForecast
+    public class WeatherForecastDto
     {
         public DateTime Date { get; set; }
 

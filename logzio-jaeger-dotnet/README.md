@@ -91,10 +91,6 @@
 - Start new containers
 
 ```bash
-# Jaeger network
-docker network create net-logzio
-docker network ls
-
 # Jaeger collector
 docker run -e ACCOUNT_TOKEN=<ACCOUNT-TOKEN> -e REGION=<REGION> \
   --name=jaeger-logzio-collector \
@@ -144,10 +140,17 @@ LOGZIO_REGION_CODE=xx
 - Use Docker compose to run all containers
 
 ```bash
-# create
+# Jaeger network
+docker network create net-logzio
+docker network ls
+
+# build
+docker-compose build
+
+# start
 docker-compose --env-file ./local.env up
 
-# delete
+# stop
 docker-compose down
 ```
 

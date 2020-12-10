@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LogzioJaegerSample.DataApi.Dto;
 using LogzioJaegerSample.Lib.DistributedTracing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,8 +17,8 @@ namespace LogzioJaegerSample.DataApi.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
+        private readonly ILogger _logger;
 
-        private readonly ILogger<WeatherForecastController> _logger;
         private readonly OpenTracing.ITracer _jaegerTracer;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger, IOpenTracingContext openTracingContext)
@@ -27,7 +28,7 @@ namespace LogzioJaegerSample.DataApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<WeatherForecastDto> Get()
         {
             #region POC
 
@@ -42,7 +43,7 @@ namespace LogzioJaegerSample.DataApi.Controllers
             #endregion
 
             var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecastDto
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
