@@ -1,5 +1,6 @@
 ﻿using System;
 using LogzioJaegerSample.Lib.DistributedTracing.Configuration;
+using LogzioJaegerSample.Lib.DistributedTracing.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
@@ -15,8 +16,8 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
-            
-            // telemetry
+
+            // OpenTelemetry
             if (configuration.IsEnabled
                 && configuration.Framework == DistributedTracingFramework.OpenTelemetry
                 && configuration.Reporter == DistributedTracingReporter.Jaeger)
@@ -36,6 +37,9 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection
                         jaegerOptions.AgentPort = configuration.Jaeger.AgentPort;
                     }));
             }
+
+            // Diagnostics
+            services.AddTransient(typeof(IActivityEventLogger<>), typeof(ActivityEventLogger<>));
 
             #region POC OpenTracing
 

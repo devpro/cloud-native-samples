@@ -57,7 +57,7 @@ services:
     networks:
       - net-logzio
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development,
+      - ASPNETCORE_ENVIRONMENT=Development
       - Logging__LogLevel__Default=Information
       - DistributedTracing__IsEnabled=true
       - DistributedTracing__ServiceName=My_DEMO_POC

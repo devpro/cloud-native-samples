@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LogzioJaegerSample.DataApi.Dto;
 using LogzioJaegerSample.Lib.DistributedTracing;
+using LogzioJaegerSample.Lib.DistributedTracing.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -17,11 +18,11 @@ namespace LogzioJaegerSample.DataApi.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger _logger;
+        private readonly IActivityEventLogger<WeatherForecastController> _logger;
 
         private readonly OpenTracing.ITracer _jaegerTracer;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger/*, IOpenTracingContext openTracingContext*/)
+        public WeatherForecastController(IActivityEventLogger<WeatherForecastController> logger/*, IOpenTracingContext openTracingContext*/)
         {
             _logger = logger;
             //_jaegerTracer = openTracingContext.Tracer;
