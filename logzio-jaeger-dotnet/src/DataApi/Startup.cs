@@ -28,6 +28,9 @@ namespace LogzioJaegerSample.DataApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddHealthChecks();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(ApplicationVersion, new OpenApiInfo { Title = ApplicationName, Version = ApplicationVersion });
@@ -54,6 +57,7 @@ namespace LogzioJaegerSample.DataApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }

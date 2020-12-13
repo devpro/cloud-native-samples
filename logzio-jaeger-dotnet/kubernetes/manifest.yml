@@ -1,0 +1,265 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-logzio-collector
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+spec:
+  selector:
+    matchLabels:
+      app: jaeger
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: collector
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: collector
+    spec:
+      containers:
+        - name: jaeger-logzio-collector
+          image: logzio/jaeger-logzio-collector:latest
+          ports:
+            - containerPort: 14268
+              protocol: TCP
+            - containerPort: 9411
+              protocol: TCP
+            - containerPort: 14250
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 14269
+          env:
+            - name: ACCOUNT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: logzio
+                  key: accounttoken
+            - name: REGION
+              valueFrom:
+                secretKeyRef:
+                  name: logzio
+                  key: region2lettercode
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-logzio-collector
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+spec:
+  ports:
+    - name: jaeger-health-check
+      port: 14269
+      protocol: TCP
+      targetPort: 14269
+    - name: jaeger-collector-http
+      port: 14268
+      protocol: TCP
+      targetPort: 14268
+    - name: jaeger-collector-zipkin
+      port: 9411
+      protocol: TCP
+      targetPort: 9411
+    - name: jaeger-collector-grpc
+      port: 14250
+      protocol: TCP
+      targetPort: 14250
+  selector:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: jaeger-agent
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: agent
+spec:
+  selector:
+    matchLabels:
+      app: jaeger
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: agent
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: agent
+    spec:
+      containers:
+        - name: jaeger-agent
+          # This specific version has been tested by Logz.io. If you opt for a later version, the Logz.io recommendation is to test before you deploy.
+          image: jaegertracing/jaeger-agent:1.18.0
+          args: ["--reporter.grpc.host-port=jaeger-logzio-collector:14250"]
+          ports:
+            - containerPort: 5775
+              protocol: UDP
+            - containerPort: 6831
+              protocol: UDP
+            - containerPort: 6832
+              protocol: UDP
+            - containerPort: 5778
+              protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-dotnet-dataapi
+  labels:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: dataapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-dotnet
+      app.kubernetes.io/name: demo-dotnet
+      app.kubernetes.io/component: dataapi
+  template:
+    metadata:
+      labels:
+        app: demo-dotnet
+        app.kubernetes.io/name: demo-dotnet
+        app.kubernetes.io/component: dataapi
+    spec:
+      containers:
+        - name: demo-dotnet-dataapi
+          image: devprofr/jaegerdataapidemo
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: DistributedTracing__ServiceName
+              value: "My_DEMO_POC"
+            - name: DistributedTracing__IsEnabled
+              value: "true"
+            - name: DistributedTracing__Framework
+              value: "OpenTelemetry"
+            - name: DistributedTracing__Reporter
+              value: "Jaeger"
+            - name: DistributedTracing__Jaeger__AgentHost
+              value: "jaeger-agent"
+            - name: DistributedTracing__Jaeger__AgentPort
+              value: "6831"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-dotnet-dataapi
+  labels:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: dataapi
+spec:
+  ports:
+    - name: demo-dotnet-dataapi-http
+      port: 8000
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: dataapi
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-dotnet-businessapi
+  labels:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: businessapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-dotnet
+      app.kubernetes.io/name: demo-dotnet
+      app.kubernetes.io/component: businessapi
+  template:
+    metadata:
+      labels:
+        app: demo-dotnet
+        app.kubernetes.io/name: demo-dotnet
+        app.kubernetes.io/component: businessapi
+    spec:
+      containers:
+        - name: demo-dotnet-businessapi
+          image: devprofr/jaegerbusinessapidemo
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: DistributedTracing__ServiceName
+              value: "My_DEMO_POC"
+            - name: DistributedTracing__IsEnabled
+              value: "true"
+            - name: DistributedTracing__Framework
+              value: "OpenTelemetry"
+            - name: DistributedTracing__Reporter
+              value: "Jaeger"
+            - name: DistributedTracing__Jaeger__AgentHost
+              value: "jaeger-agent"
+            - name: DistributedTracing__Jaeger__AgentPort
+              value: "6831"
+            - name: Infrastructure__DataApi__Url
+              value: "http://demo-dotnet-dataapi:8000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-dotnet-businessapi
+  labels:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: businessapi
+spec:
+  ports:
+    - name: demo-dotnet-businessapi-http
+      port: 8001
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: businessapi
+  type: LoadBalancer

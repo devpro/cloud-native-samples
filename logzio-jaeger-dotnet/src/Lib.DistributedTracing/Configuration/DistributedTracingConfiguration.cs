@@ -13,6 +13,8 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.Configuration
 
         public DistributedTracingReporter Reporter { get; set; } = DistributedTracingReporter.Jaeger;
 
+        public string PathToIgnore { get; set; } = "swagger,health,favicon.ico";
+
         public JaegerExporterOptions Jaeger { get; set; }
 
         public static IDistributedTracingConfiguration Create(IConfiguration configuration, string sectionName)

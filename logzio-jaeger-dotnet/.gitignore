@@ -353,4 +353,3 @@ MigrationBackup/
 Local.runsettings
 appsettings.Development.json
 local.env
-kubernetes/manifest.yml

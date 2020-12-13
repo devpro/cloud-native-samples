@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LogzioJaegerSample.Lib.DistributedTracing.Configuration;
 using LogzioJaegerSample.Lib.DistributedTracing.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,8 +28,20 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.DependencyInjection
                     .AddAspNetCoreInstrumentation(options =>
                         options.Filter = (httpContext) =>
                         {
-                            // do not trace calls to Swagger
-                            return !httpContext.Request.Path.StartsWithSegments("/swagger");
+                            if (string.IsNullOrEmpty(configuration.PathToIgnore))
+                            {
+                                return true;
+                            }
+
+                            foreach (var path in configuration.PathToIgnore.Split(','))
+                            {
+                                if (httpContext.Request.Path.StartsWithSegments(path))
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
                         })
                     .AddHttpClientInstrumentation()
                     .AddJaegerExporter(jaegerOptions =>

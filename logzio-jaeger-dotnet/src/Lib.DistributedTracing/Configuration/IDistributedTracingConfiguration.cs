@@ -22,6 +22,8 @@ namespace LogzioJaegerSample.Lib.DistributedTracing.Configuration
 
         DistributedTracingReporter Reporter { get; }
 
+        string PathToIgnore { get; }
+
         JaegerExporterOptions Jaeger { get; }
     }
 }

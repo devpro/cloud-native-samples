@@ -10,8 +10,8 @@
 
 <img src="https://dytvr9ot2sszz.cloudfront.net/logz-docs/distributed-tracing/tracing_architecture.png" style="width:50%">
 
-- .NET Core Web Application (Jaeger client library): Kubernetes Pod
-- Jaeger Agent: Kubernetes Deployment/Service
+- .NET Core Web Application (Jaeger client library): Kubernetes Deployment
+- Jaeger Agent: Kubernetes Deployment
 - Jaeger Collector: Kubernetes DaemonSet
 - Logz.io Platform: SaaS
 
@@ -39,7 +39,6 @@ Activity | System.Diagnostics | [Span](https://github.com/open-telemetry/opentel
     - [Jaeger Essentials: Best Practices for Deploying Jaeger on Kubernetes in Production](https://logz.io/blog/jaeger-kubernetes-best-practices/) - Aug 7th, 2020
   - [Setting up instrumentation and ingesting traces](https://docs.logz.io/user-guide/distributed-tracing/tracing-instrumentation.html)
 
-
 ## Getting started
 
 ### Setup a Logz.io account
@@ -47,52 +46,7 @@ Activity | System.Diagnostics | [Span](https://github.com/open-telemetry/opentel
 - Create a free account on [logz.io](https://logz.io/freetrial/) (you may have issues with popup/privacy blocker such as DuckDuckGo)
 - Make sure you are on the right Logz.io instance then retrieve your [region code](https://docs.logz.io/user-guide/accounts/account-region.html#available-regions) and token from [your account page](https://app-eu.logz.io/#/dashboard/settings/general)
 
-### Use demo .NET web app
-
-- Use the existing solution or create a new project
-  - You need to add the NuGet package reference to `Jaeger`
-  - Minimalist code to be added in a Controller to have a quick check
-
-  ```csharp
-
-    private readonly ILoggerFactory _loggerFactory;
-
-    public WeatherForecastController(ILoggerFactory loggerFactory)
-    {
-        _loggerFactory = loggerFactory;
-    }
-
-    [HttpGet]
-    public IEnumerable<WeatherForecast> Get()
-    {
-        Jaeger.Configuration.SenderConfiguration.DefaultSenderResolver = new Jaeger.Senders.SenderResolver(_loggerFactory)
-            .RegisterSenderFactory<Jaeger.Senders.Thrift.ThriftSenderFactory>();
-
-        Jaeger.Configuration config = Jaeger.Configuration.FromEnv(_loggerFactory);
-
-        var samplerConfiguration = new Jaeger.Configuration.SamplerConfiguration(_loggerFactory)
-            .WithType(Jaeger.Samplers.ConstSampler.Type)
-            .WithParam(1);
-
-        var reporterConfiguration = new Jaeger.Configuration.ReporterConfiguration(_loggerFactory)
-            .WithLogSpans(true);
-
-        OpenTracing.ITracer tracer = config
-            .WithSampler(samplerConfiguration)
-            .WithReporter(reporterConfiguration)
-            .GetTracer();
-
-        OpenTracing.ISpanBuilder builder = tracer.BuildSpan("myop");
-
-        OpenTracing.ISpan span = builder.Start();
-
-        span.Log("My message to the world");
-
-        span.Finish();
-    }
-  ```
-
-### Run locally with Docker
+### Run locally the backing services (Logz.io Jaeger collector & Jaeger agent) with Docker
 
 - Start new containers
 
@@ -115,28 +69,61 @@ docker run -e ACCOUNT_TOKEN=<ACCOUNT-TOKEN> -e REGION=<REGION> \
 docker run --rm -p6831:6831/udp -p6832:6832/udp -p5778:5778/tcp -p5775:5775/udp jaegertracing/jaeger-agent:1.21 --reporter.grpc.host-port=<COLLECTOR-IP-OR-HOSTNAME>:14250
 ```
 
-- Run a quick test with the .NET web app
-  - Add environment variables in `launchSettings.json` (`host.docker.internal` will work on Windows, to be replaced in Linux)
+### Quick Jaeger .NET test
 
-  ```json
-    "DataApi": {
-      "commandName": "Project",
-      "dotnetRunMessages": "true",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:5001;http://localhost:5000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "JAEGER_SERVICE_NAME": "MY_DEMO",
-        "JAEGER_AGENT_HOST": "<AGENT-IP-OR-HOSTNAME>",
-        "JAEGER_AGENT_PORT": "6831"
-      }
-    }
-  ```
+- Minimalist code to be added in a Controller to have a quick check (by adding the NuGet package reference to `Jaeger`), make sure environment variables "JAEGER_SERVICE_NAME", "JAEGER_AGENT_HOST" and "JAEGER_AGENT_PORT" are set (in `appsettings.json` file for example)
 
-### Run locally with Docker Compose
+```csharp
+  private readonly ILoggerFactory _loggerFactory;
 
-- Create or review `local.env` file
+  public WeatherForecastController(ILoggerFactory loggerFactory)
+  {
+      _loggerFactory = loggerFactory;
+  }
+
+  [HttpGet]
+  public IEnumerable<WeatherForecast> Get()
+  {
+      Jaeger.Configuration.SenderConfiguration.DefaultSenderResolver = new Jaeger.Senders.SenderResolver(_loggerFactory)
+          .RegisterSenderFactory<Jaeger.Senders.Thrift.ThriftSenderFactory>();
+
+      Jaeger.Configuration config = Jaeger.Configuration.FromEnv(_loggerFactory);
+
+      var samplerConfiguration = new Jaeger.Configuration.SamplerConfiguration(_loggerFactory)
+          .WithType(Jaeger.Samplers.ConstSampler.Type)
+          .WithParam(1);
+
+      var reporterConfiguration = new Jaeger.Configuration.ReporterConfiguration(_loggerFactory)
+          .WithLogSpans(true);
+
+      OpenTracing.ITracer tracer = config
+          .WithSampler(samplerConfiguration)
+          .WithReporter(reporterConfiguration)
+          .GetTracer();
+
+      OpenTracing.ISpanBuilder builder = tracer.BuildSpan("myop");
+
+      OpenTracing.ISpan span = builder.Start();
+
+      span.Log("My message to the world");
+
+      span.Finish();
+  }
+```
+
+### Run locally the applications directly
+
+```bash
+# Data API
+dotnet run -p src/DataApi
+
+# Data API
+dotnet run -p src/BusinessApi
+```
+
+### Run everythings locally with Docker Compose
+
+- Create a file `local.env` with the content (this file containing secrets will be ignored by git)
 
 ```env
 LOGZIO_ACCOUNT_TOKEN=xxxxxxx
@@ -160,15 +147,63 @@ docker-compose --env-file ./local.env up
 docker-compose down
 
 # clean-up
-docker rm logziojaegercollector jaegeragent dataapi businessapi
+docker rm logzio-jaeger-logziojaegercollector_1 logzio-jaeger-jaegeragent_1 dataapi_1 logzio-jaeger-businessapi_1
 ```
 
-### Run in Kubernetes
+### Create application images
 
-- Edit `kubernetes/manifest.yml` file and set the region code and token
+- Create images (Docker)
+
+```bash
+# Data API
+docker build . -t devprofr/jaegerdataapidemo -f src/DataApi/Dockerfile --no-cache
+
+# Business API
+docker build . -t devprofr/jaegerbusinessapidemo -f src/BusinessApi/Dockerfile --no-cache
+```
+
+- Push newly created images to a container image registry (Docker Hub)
+
+```bash
+# Data API
+docker push devprofr/jaegerdataapidemo:latest
+
+# Business API
+docker push devprofr/jaegerbusinessapidemo:latest
+```
+
+### Run applications in Docker
+
+```bash
+
+# run a container as a daemon on the new images with only HTTP
+docker run -d -p 8000:80 --name jaegerdataapidemo devprofr/jaegerdataapidemo:latest -e DistributedTracing__IsEnabled=true -e DistributedTracing__ServiceName=My_DEMO_POC -e DistributedTracing__Framework=OpenTelemetry -e DistributedTracing__Reporter=Jaeger -e DistributedTracing__Jaeger__AgentHost=host.docker.internal -e DistributedTracing__Jaeger__AgentPort=6831
+
+# make sure the container is running fine (and open http://localhost:8000/WeatherForecast)
+docker ps
+
+# run a container interactively on the new image with HTTPS activated (tested on Windows with Linux containers)
+docker run --rm -it -p 8000:80 -p 8001:443 -e DistributedTracing__IsEnabled=true -e DistributedTracing__ServiceName=My_DEMO_POC -e DistributedTracing__Framework=OpenTelemetry -e DistributedTracing__Reporter=Jaeger -e DistributedTracing__Jaeger__AgentHost=host.docker.internal -e DistributedTracing__Jaeger__AgentPort=6831 -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_ENVIRONMENT=Development -e ASPNETCORE_HTTPS_PORT=8001 -e ASPNETCORE_Kestrel__Certificates__Default__Password="password" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx -v %USERPROFILE%\.aspnet\https:/https/ --name jaegerdataapidemo devprofr/jaegerdataapidemo
+
+# if there is an issue (direct crash), replace the ENTRYPOINT line by CMD "/bin/bash" and run
+docker run -i -t -p 8080:80 devprofr/jaegerdataapidemo
+
+# clean up
+docker system prune -f
+```
+
+### Run everything in Kubernetes
+
 - Apply Kubernetes configuration (see [Minikube cheatsheet](https://github.com/devpro/everyday-cheatsheets/blob/master/docs/minikube.md))
 
 ```bash
+# create secrets (Logz.io)
+kubectl create secret generic logzio \
+  # Replace with the Tracing account token from Logz.io in Manage accounts > Distributed Tracing
+  --from-literal=accounttoken=xxxxxxxxxx \
+  # Replace with the 2-letter code for your region from the Logz.io Regions and Listener hosts table or from your Account settings page (for example: eu)
+  --from-literal=region2lettercode=xxxxxxx
+
 # create the resources
 kubectl apply -f kubernetes/manifest.yml
 
@@ -176,63 +211,26 @@ kubectl apply -f kubernetes/manifest.yml
 kubectl get services,daemonset.apps,deployment.apps -A
 kubectl get pods
 
+# apply a change (for example if a new image has been pushed)
+kubectl rollout restart deployment/demo-dotnet-dataapi
+kubectl rollout restart deployment/demo-dotnet-businessapi
+
+# Minikube: access the applications
+minikube service demo-dotnet-dataapi
+minikube service demo-dotnet-businessapi
+
 # do clean-up
 kubectl delete -f kubernetes/manifest.yml
 ```
 
-- Run the .NET application directly
-
-```bash
-dotnet run -p src/DataApi
-```
-
-- Run the .NET application in Docker (for .NET 5.0 see [Update Docker images](https://docs.microsoft.com/en-us/aspnet/core/migration/31-to-50?view=aspnetcore-5.0&tabs=visual-studio#update-docker-images))
-
-```bash
-# build a new image
-docker build . -t devprofr/jaegerdataapidemo -f src/DataApi/Dockerfile --no-cache
-
-# run a container as a daemon on the new images with only HTTP
-docker run -d -p 8000:80 --name jaegerdataapidemo devprofr/jaegerdataapidemo:latest
-
-# make sure the container is running fine (and open http://localhost:8000/WeatherForecast)
-docker ps
-
-# run a container interactively on the new image with HTTPS activated (tested on Windows with Linux containers)
-docker run --rm -it -p 8000:80 -p 8001:443 -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_ENVIRONMENT=Development -e ASPNETCORE_HTTPS_PORT=8001 -e ASPNETCORE_Kestrel__Certificates__Default__Password="password" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx -v %USERPROFILE%\.aspnet\https:/https/ --name jaegerdataapidemo devprofr/jaegerdataapidemo
-
-# if there is an issue (direct crash), replace the ENTRYPOINT line by CMD "/bin/bash" and run
-docker run -i -t -p 8080:80 devprofr/jaegerdataapidemo
-
-# push the image on a container registry
-docker push devprofr/jaegerdataapidemo:latest
-
-# clean up
-docker system prune -f
-```
-
-- Run the application in Kubernetes
-
-```bash
-# create a deployment in the Kubernetes cluster
-kubectl create deployment jaegerdataapidemo --image=devprofr/jaegerdataapidemo:latest
-
-# make sure everything is created ok
-kubectl get deploy,pod
-
-# expose the deployment and (optional) access it if you are using Minikube
-kubectl expose deployment jaegerdataapidemo --type=LoadBalancer --port 8000 --target-port 80 --name jaegerdataapidemo
-minikube service jaegerdataapidemo
-
-# clean-up
-kubectl delete service jaegerdataapidemo
-kubectl delete deployment jaegerdataapidemo
-```
-
-## References
+## Additional references
 
 - ASP.NET Core: [docs](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-5.0), [code](https://github.com/dotnet/aspnetcore)
   - [Write custom ASP.NET Core middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write?view=aspnetcore-5.0)
-- Dev Mentors: [youtube](https://www.youtube.com/watch?v=toXFRBtv4fg) (source code: [Pacco](https://github.com/devmentors/Pacco), [Convey](https://github.com/snatch-dev/Convey), [Convey.Tracing.Jaeger](https://github.com/convey-stack/Convey.Tracing.Jaeger))
+  - [Health checks in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0)
+  - [Update Docker images for ASP.NET Core 5.0](https://docs.microsoft.com/en-us/aspnet/core/migration/31-to-50?view=aspnetcore-5.0&tabs=visual-studio#update-docker-images)
+
 - [**OpenTracing**](https://opentracing.io/): [specification](https://github.com/opentracing/specification), [.NET](https://github.com/opentracing/opentracing-csharp)
   - [OpenTracing Tutorial - C#](https://github.com/yurishkuro/opentracing-tutorial/tree/master/csharp)
+
+- Dev Mentors: [youtube](https://www.youtube.com/watch?v=toXFRBtv4fg) (source code: [Pacco](https://github.com/devmentors/Pacco), [Convey](https://github.com/snatch-dev/Convey), [Convey.Tracing.Jaeger](https://github.com/convey-stack/Convey.Tracing.Jaeger))

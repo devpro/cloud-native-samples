@@ -31,6 +31,10 @@ namespace LogzioJaegerSample.BusinessApi
         {
             services.AddControllers();
 
+            services.AddTransient<WeatherForecastRepository>();
+
+            services.AddHealthChecks();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(ApplicationVersion, new OpenApiInfo { Title = ApplicationName, Version = ApplicationVersion });
@@ -45,8 +49,6 @@ namespace LogzioJaegerSample.BusinessApi
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     client.BaseAddress = new Uri(_configuration.GetValue<string>("Infrastructure:DataApi:Url"));
                 });
-
-            services.AddTransient<WeatherForecastRepository>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -67,6 +69,7 @@ namespace LogzioJaegerSample.BusinessApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }
