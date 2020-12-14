@@ -1,0 +1,4 @@
+# temporary files used to validate charts
+temp.yaml
+# sample chart used only locally to build charts
+example/

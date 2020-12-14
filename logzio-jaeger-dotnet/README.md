@@ -223,7 +223,19 @@ minikube service demo-dotnet-businessapi
 kubectl delete -f kubernetes/manifest.yml
 ```
 
+### Run with Helm
+
+- Apply Helm configuration (see [Helm](https://github.com/devpro/everyday-cheatsheets/blob/master/docs/helm.md))
+
+```bash
+TODO
+```
+
 ## Additional references
+
+- CNCF webinars
+  - [Fundamentals of OpenTelemetry](https://www.cncf.io/webinars/fundamentals-of-opentelemetry/)
+  - [The what and why of distributed tracing](https://www.cncf.io/webinars/the-whats-and-whys-of-distributed-tracing/)
 
 - ASP.NET Core: [docs](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-5.0), [code](https://github.com/dotnet/aspnetcore)
   - [Write custom ASP.NET Core middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write?view=aspnetcore-5.0)

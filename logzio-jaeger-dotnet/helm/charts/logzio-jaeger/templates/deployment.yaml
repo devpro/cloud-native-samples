@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-logzio-collector
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+spec:
+  selector:
+    matchLabels:
+      app: jaeger
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: collector
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: collector
+    spec:
+      containers:
+        - name: jaeger-logzio-collector
+          image: "{{ .Values.collector.image }}"
+          ports:
+            - containerPort: 14268
+              protocol: TCP
+            - containerPort: 9411
+              protocol: TCP
+            - containerPort: 14250
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 14269
+          env:
+            - name: ACCOUNT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.logzio.secretName }}"
+                  key: accounttoken
+            - name: REGION
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.logzio.secretName }}"
+                  key: region2lettercode

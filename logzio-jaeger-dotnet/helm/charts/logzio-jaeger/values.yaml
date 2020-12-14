@@ -1,0 +1,13 @@
+# Default values for the chart.
+
+nameOverride: ""
+fullnameOverride: ""
+
+collector:
+  image: logzio/jaeger-logzio-collector:latest
+
+agent:
+  image: jaegertracing/jaeger-agent:1.18.0
+
+logzio:
+  secretName: logzio
