@@ -155,7 +155,7 @@ spec:
               port: 80
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Development
+              value: "Development"
             - name: DistributedTracing__ServiceName
               value: "My_DEMO_POC"
             - name: DistributedTracing__IsEnabled
@@ -228,7 +228,7 @@ spec:
               port: 80
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Development
+              value: "Development"
             - name: DistributedTracing__ServiceName
               value: "My_DEMO_POC"
             - name: DistributedTracing__IsEnabled

@@ -353,3 +353,6 @@ MigrationBackup/
 Local.runsettings
 appsettings.Development.json
 local.env
+
+# WinMerge backup files
+*.bak

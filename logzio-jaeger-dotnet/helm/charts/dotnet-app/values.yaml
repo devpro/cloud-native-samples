@@ -1,0 +1,42 @@
+# Default values for the chart.
+
+aspnetcore:
+  environment: Development
+
+applications:
+  # Data API
+  - name: dataapi
+    image: devprofr/jaegerdataapidemo
+    port: 8000
+    env:
+      - name: DistributedTracing__ServiceName
+        value: "My_DEMO_POC"
+      - name: DistributedTracing__IsEnabled
+        value: "true"
+      - name: DistributedTracing__Framework
+        value: "OpenTelemetry"
+      - name: DistributedTracing__Reporter
+        value: "Jaeger"
+      - name: DistributedTracing__Jaeger__AgentHost
+        value: "jaeger-agent"
+      - name: DistributedTracing__Jaeger__AgentPort
+        value: "6831"
+  # Business API
+  - name: businessapi
+    image: devprofr/jaegerbusinessapidemo
+    port: 8001
+    env:
+      - name: DistributedTracing__ServiceName
+        value: "My_DEMO_POC"
+      - name: DistributedTracing__IsEnabled
+        value: "true"
+      - name: DistributedTracing__Framework
+        value: "OpenTelemetry"
+      - name: DistributedTracing__Reporter
+        value: "Jaeger"
+      - name: DistributedTracing__Jaeger__AgentHost
+        value: "jaeger-agent"
+      - name: DistributedTracing__Jaeger__AgentPort
+        value: "6831"
+      - name: Infrastructure__DataApi__Url
+        value: "http://demo-dotnet-dataapi:8000"

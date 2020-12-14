@@ -1,0 +1,22 @@
+{{ range .Values.applications }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-dotnet-{{ .name }}
+  labels:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: {{ .name }}
+spec:
+  ports:
+    - name: demo-dotnet-{{ .name }}-http
+      port: {{ .port }}
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: demo-dotnet
+    app.kubernetes.io/name: demo-dotnet
+    app.kubernetes.io/component: {{ .name }}
+  type: LoadBalancer
+{{ end }}
