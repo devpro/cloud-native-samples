@@ -11,4 +11,10 @@ helm template . -f values.yaml > temp.yaml
 
 # install with Helm
 helm install demo-logzio-jaeger .
+
+# list deployed releases
+helm ls
+
+# uninstall
+helm install demo-logzio-jaeger
 ```

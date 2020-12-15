@@ -10,10 +10,13 @@
 
 <img src="https://dytvr9ot2sszz.cloudfront.net/logz-docs/distributed-tracing/tracing_architecture.png" style="width:50%">
 
-- .NET Core Web Application (Jaeger client library): Kubernetes Deployment
-- Jaeger Agent: Kubernetes Deployment
-- Jaeger Collector: Kubernetes DaemonSet
-- Logz.io Platform: SaaS
+Component | Kubernetes resource | Kubernetes Service | Dependencies
+--------- | ------------------- | ------------------ | ------------
+Logz.io Platform (SaaS) | - | -
+Jaeger Collector | Deployment | ClusterIP | Logz.io Platform
+Jaeger Agent | DaemonSet | ClusterIP | Jaeger Collector
+ASP.NET Data API | Deployment | LoadBalancer | Jaeger Agent
+ASP.NET Business API | Deployment | LoadBalancer | ASP.NET Data API, Jaeger Agent
 
 ### OpenTelemetry terminology
 
@@ -21,6 +24,8 @@ Class name | Namespace | OpenTelemetry representation | Comment
 ---------- | --------- | ---------------------------- | -------
 ActivitySource | System.Diagnostics | [Tracer](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/trace/api.md#tracer) | The tracer is responsible for creating Spans
 Activity | System.Diagnostics | [Span](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/trace/api.md#span) | A Span represents a single operation within a trace. Spans can be nested to form a trace tree. Each trace contains a root span, which typically describes the entire operation and, optionally, one or more sub-spans for its sub-operations
+
+Know more by looking at the CNCF webinar: [Fundamentals of OpenTelemetry](https://www.cncf.io/webinars/fundamentals-of-opentelemetry/).
 
 ### Documentation
 
@@ -147,7 +152,7 @@ docker-compose --env-file ./local.env up
 docker-compose down
 
 # clean-up
-docker rm logzio-jaeger-logziojaegercollector_1 logzio-jaeger-jaegeragent_1 dataapi_1 logzio-jaeger-businessapi_1
+docker rm logzio-jaeger-dotnet_businessapi_1 logzio-jaeger-dotnet_dataapi_1 logzio-jaeger-dotnet_jaegeragent_1 logzio-jaeger-dotnet_logziojaegercollector_1
 ```
 
 ### Create application images
@@ -228,13 +233,23 @@ kubectl delete -f kubernetes/manifest.yml
 - Apply Helm configuration (see [Helm](https://github.com/devpro/everyday-cheatsheets/blob/master/docs/helm.md))
 
 ```bash
-TODO
+# make sure secret has been generated (see previous step)
+
+# install with Helm
+helm install demo-logzio-jaeger helm/charts/logzio-jaeger
+helm install demo-jaeger-dotnet-app helm/charts/dotnet-app
+
+# list deployed releases
+helm ls
+
+# uninstall
+helm install demo-jaeger-dotnet-app
+helm install demo-logzio-jaeger
 ```
 
 ## Additional references
 
 - CNCF webinars
-  - [Fundamentals of OpenTelemetry](https://www.cncf.io/webinars/fundamentals-of-opentelemetry/)
   - [The what and why of distributed tracing](https://www.cncf.io/webinars/the-whats-and-whys-of-distributed-tracing/)
 
 - ASP.NET Core: [docs](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-5.0), [code](https://github.com/dotnet/aspnetcore)

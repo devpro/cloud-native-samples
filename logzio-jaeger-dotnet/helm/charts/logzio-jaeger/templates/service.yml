@@ -29,3 +29,23 @@ spec:
     app.kubernetes.io/name: jaeger
     app.kubernetes.io/component: collector
   type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-agent
+  labels:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: agent
+spec:
+  ports:
+    - name: jaeger-agent-compact
+      port: 6831
+      protocol: UDP
+      targetPort: 6831
+  selector:
+    app: jaeger
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: agent
+  type: ClusterIP
