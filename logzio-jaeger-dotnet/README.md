@@ -243,8 +243,8 @@ helm install demo-jaeger-dotnet-app helm/charts/dotnet-app
 helm ls
 
 # uninstall
-helm install demo-jaeger-dotnet-app
-helm install demo-logzio-jaeger
+helm uninstall demo-jaeger-dotnet-app
+helm uninstall demo-logzio-jaeger
 ```
 
 ## Additional references
