@@ -4,11 +4,12 @@
 
 ### Terminology
 
-* [Splunk](https://github.com/devpro/everyday-cheatsheets/blob/main/docs/splunk.md) is the data platform where we want to send traces from our application
+* [Splunk](https://github.com/devpro/everyday-cheatsheets/blob/main/docs/splunk.md) is the data platform where we want to send traces from our application. We'll be using:
+  * the HTTP Event Collector (HEC): [examples](https://docs.splunk.com/Documentation/Splunk/8.1.3/Data/HECExamples)
 * [OpenTelemetry](https://opentelemetry.io/), aka "Otel", is an "observability framework for cloud-native software (a collection of tools, APIs, and SDKs)". It is:
   * the new standard for tracing and observability and one of the most active projects of the [Cloud Native Computing Foundation (CNCF)](https://github.com/devpro/everyday-cheatsheets/blob/main/docs/cncf.md) (as of May 2021)
-  * the library that we will use to collect data from the application code
-  * the collector that will receive data from the application and send it to Splunk
+  * the library that we will use to collect data from the application code: [opentelemetry-dotnet](https://github.com/open-telemetry/opentelemetry-dotnet)
+  * the collector that will receive data from the application and send it to Splunk: [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib)
 * [ASP.NET](https://dotnet.microsoft.com/apps/aspnet) is a "free, cross-platform, open source framework for building web apps and services with .NET and C#".
 * [NuGet](https://www.nuget.org/) is the "package manager for .NET".
 
@@ -33,7 +34,7 @@
 ```txt
 ASP.NET 5 web API with Otel .NET library
   -> Otel collector
-    -> Splunk HEC (HTTP Event Collector)
+    -> Splunk HEC
 ```
 
 ## Setup
