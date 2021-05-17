@@ -35,12 +35,12 @@ namespace SplunkOpenTelemetrySample.WebApi
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
             services.AddOpenTelemetryTracing((builder) => builder
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("SplunkOpenTelemetrySample"))
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("otel"))
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddOtlpExporter(otlpOptions =>
                 {
-                    otlpOptions.Endpoint = new Uri("http://host.docker.internal:4317");
+                    otlpOptions.Endpoint = new Uri("http://localhost:4317");
                 }));
         }
 

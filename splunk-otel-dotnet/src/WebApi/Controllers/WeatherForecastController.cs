@@ -30,16 +30,16 @@ namespace SplunkOpenTelemetrySample.WebApi.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecastDto> Get()
         {
+            var activity = Activity.Current;
+            _logger.LogDebug($"Activity TraceId={activity.TraceId}, SpanId={activity.SpanId}, ParentSpanId={activity.ParentSpanId}");
+            activity.AddEvent(new ActivityEvent("sample activity event."));
+
             using var scope = _logger.BeginScope("{Id}", Guid.NewGuid().ToString("N"));
 
             // Making an http call here to serve as an example of
             // how dependency calls will be captured and treated
             // automatically as child of incoming request.
             var res = s_httpClient.GetStringAsync("http://google.com").Result;
-
-            var activity = Activity.Current;
-            _logger.LogDebug($"Activity TraceId={activity.TraceId}, SpanId={activity.SpanId}, ParentSpanId={activity.ParentSpanId}");
-            activity.AddEvent(new ActivityEvent("sample activity event."));
 
             var rng = new Random();
             var forecast = Enumerable.Range(1, 5).Select(index => new WeatherForecastDto

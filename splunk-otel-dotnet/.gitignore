@@ -358,5 +358,5 @@ local.env
 *.bak
 
 # Local docker files
-docker/otel-collector/collector.yml
-docker/splunk/default.yml
+docker/*.yaml
+docker/*.yml
