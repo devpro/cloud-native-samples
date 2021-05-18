@@ -22,26 +22,31 @@ namespace SplunkOpenTelemetrySample.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddHealthChecks();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
+                c.SwaggerDoc(_configuration["Application:Version"],
+                    new OpenApiInfo { Title = _configuration["Application:Name"], Version = _configuration["Application:Version"] });
             });
 
-            // example: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/examples/AspNetCore/Startup.cs
+            if (bool.TryParse(_configuration["OpenTelemetryTracing:Enabled"], out var isOtelTracingEnabled) && isOtelTracingEnabled)
+            {
+                // example: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/examples/AspNetCore/Startup.cs
 
-            // Adding the OtlpExporter creates a GrpcChannel.
-            // This switch must be set before creating a GrpcChannel/HttpClient when calling an insecure gRPC service.
-            // See: https://docs.microsoft.com/aspnet/core/grpc/troubleshoot#call-insecure-grpc-services-with-net-core-client
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+                // Adding the OtlpExporter creates a GrpcChannel.
+                // This switch must be set before creating a GrpcChannel/HttpClient when calling an insecure gRPC service.
+                // See: https://docs.microsoft.com/aspnet/core/grpc/troubleshoot#call-insecure-grpc-services-with-net-core-client
+                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
-            services.AddOpenTelemetryTracing((builder) => builder
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("otel"))
-                .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .AddOtlpExporter(otlpOptions =>
-                {
-                    otlpOptions.Endpoint = new Uri("http://localhost:4317");
-                }));
+                services.AddOpenTelemetryTracing((builder) => builder
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(_configuration["OpenTelemetryTracing:Service"]))
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddOtlpExporter(otlpOptions =>
+                    {
+                        otlpOptions.Endpoint = new Uri(_configuration["OpenTelemetryTracing:OtlpExporter:Endpoint"]);
+                    }));
+            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -50,7 +55,8 @@ namespace SplunkOpenTelemetrySample.WebApi
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint($"/swagger/{_configuration["Application:Version"]}/swagger.json",
+                    $"{_configuration["Application:Name"]} {_configuration["Application:Version"]}"));
             }
 
             app.UseHttpsRedirection();
@@ -59,6 +65,7 @@ namespace SplunkOpenTelemetrySample.WebApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }

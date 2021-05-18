@@ -36,24 +36,21 @@ namespace SplunkOpenTelemetrySample.WebApi.Controllers
 
             using var scope = _logger.BeginScope("{Id}", Guid.NewGuid().ToString("N"));
 
-            // Making an http call here to serve as an example of
-            // how dependency calls will be captured and treated
-            // automatically as child of incoming request.
+            // Example of how dependency calls will be captured and treated automatically as child of incoming request
             var res = s_httpClient.GetStringAsync("http://google.com").Result;
 
             var rng = new Random();
-            var forecast = Enumerable.Range(1, 5).Select(index => new WeatherForecastDto
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = s_summaries[rng.Next(s_summaries.Length)]
-            })
-            .ToArray();
+            var forecast = Enumerable.Range(1, 5)
+                .Select(index =>
+                    new WeatherForecastDto
+                    {
+                        Date = DateTime.Now.AddDays(index),
+                        TemperatureC = rng.Next(-20, 55),
+                        Summary = s_summaries[rng.Next(s_summaries.Length)]
+                    })
+                .ToArray();
 
-            _logger.LogInformation(
-                "WeatherForecasts generated {count}: {forecasts}",
-                forecast.Length,
-                forecast);
+            _logger.LogInformation($"WeatherForecasts generated {forecast.Length}: {forecast}");
 
             return forecast;
         }

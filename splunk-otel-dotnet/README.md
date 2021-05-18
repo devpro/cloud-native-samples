@@ -181,6 +181,29 @@ dotnet build
 dotnet run -p src/WebApi
 ```
 
+### Run with Docker
+
+```bash
+# build a new image
+docker build . -t splunkoteldotnetsamplewebapi -f src/WebApi/Dockerfile --no-cache
+
+# run the image
+docker run -d -p 8001:443 -e ASPNETCORE_ENVIRONMENT=Development -e OpenTelemetryTracing__Enabled="true" -e OpenTelemetryTracing__OtlpExporter__Endpoint="http://host.docker.internal:4317" -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_HTTPS_PORT=8001 -e ASPNETCORE_Kestrel__Certificates__Default__Password="password" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx -v %USERPROFILE%\.aspnet\https:/https/ --name splunkoteldotnetsamplewebapi splunkoteldotnetsamplewebapi:latest
+
+# check service is up
+curl --insecure https://localhost:8001/health
+```
+
+### Run with Docker Compose
+
+Example: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/splunkhecexporter/example/docker-compose.yml
+
+```bash
+docker-compose up
+
+docker-compose down
+```
+
 ## Additional resources
 
 * Technical articles
