@@ -31,8 +31,6 @@ namespace SplunkOpenTelemetrySample.WebApi
 
             if (bool.TryParse(_configuration["OpenTelemetryTracing:Enabled"], out var isOtelTracingEnabled) && isOtelTracingEnabled)
             {
-                // example: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/examples/AspNetCore/Startup.cs
-
                 // Adding the OtlpExporter creates a GrpcChannel.
                 // This switch must be set before creating a GrpcChannel/HttpClient when calling an insecure gRPC service.
                 // See: https://docs.microsoft.com/aspnet/core/grpc/troubleshoot#call-insecure-grpc-services-with-net-core-client
@@ -59,7 +57,11 @@ namespace SplunkOpenTelemetrySample.WebApi
                     $"{_configuration["Application:Name"]} {_configuration["Application:Version"]}"));
             }
 
-            app.UseHttpsRedirection();
+            if (bool.TryParse(_configuration["Application:EnforceHttps"], out var isHttpsEnforced) && isHttpsEnforced)
+            {
+                app.UseHttpsRedirection();
+            }
+
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
