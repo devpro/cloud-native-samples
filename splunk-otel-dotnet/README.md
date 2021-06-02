@@ -1,4 +1,4 @@
-# Data collection with Splunk & OpenTelemetry from a .NET application
+# Trace collection with Splunk & OpenTelemetry from a .NET application
 
 This is the result of a technical study, with a working example, on how to collect ASP.NET application execution information in Splunk thanks to OpenTelemetry library & collector.
 
@@ -10,7 +10,7 @@ _TL;DR_ Run `docker-compose build; docker-compose up` from a Linux shell (works 
 
 * [Splunk](https://github.com/devpro/everyday-cheatsheets/blob/main/docs/splunk.md) is the platform where data is collected and viewed. We'll be using:
   * the HTTP Event Collector (HEC): [examples](https://docs.splunk.com/Documentation/Splunk/8.1.3/Data/HECExamples)
-    
+
     → [Splunk distributed deployment](https://www.splunk.com/content/dam/splunk-blogs/images/2016/10/scenario3.png)
 
 * [OpenTelemetry](https://opentelemetry.io/), aka "Otel", is an "observability framework for cloud-native software (a collection of tools, APIs, and SDKs)". It is:
@@ -24,7 +24,7 @@ _TL;DR_ Run `docker-compose build; docker-compose up` from a Linux shell (works 
 
   * the library that we will use to collect data from the application code: [opentelemetry-dotnet](https://github.com/open-telemetry/opentelemetry-dotnet)
   * the collector that will receive data from the application and send it to Splunk: [collector](https://opentelemetry.io/docs/collector/), [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-    
+
     → [OpenTelemetry Reference Architecture](https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/main/iconography/Reference_Architecture.svg)
 
 * [ASP.NET](https://dotnet.microsoft.com/apps/aspnet) is a "free, cross-platform, open source framework for building web apps and services with .NET and C#"

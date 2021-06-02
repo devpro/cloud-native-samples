@@ -1,0 +1,6 @@
+splunk:
+  hec:
+    enable: true
+    port: 8088
+    ssl: false
+    token: "00000000-0000-0000-0000-0000000000000"

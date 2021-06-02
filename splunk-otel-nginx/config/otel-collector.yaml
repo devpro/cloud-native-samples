@@ -1,0 +1,36 @@
+receivers:
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver
+  filelog:
+    include: [ /tmp/log/nginx/*.log ]
+    start_at: beginning
+    operators:
+      - type: regex_parser
+        # exemple: 2021/06/01 20:16:12 [notice] 1#1: start worker process 34
+        regex: '^(?P<time>\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}) \[(?P<sev>[A-Za-z]*)\] (?P<msg>.*)$'
+        timestamp:
+          parse_from: time
+          layout: '%Y/%m/%d %H:%M:%S'
+        severity:
+          parse_from: sev
+      # - type: json_parser
+    converter:
+      max_flush_count: 100
+      flush_interval: 100ms
+
+exporters:
+  splunk_hec:
+    token: "00000000-0000-0000-0000-0000000000000"
+    endpoint: "http://host.docker.internal:8088/services/collector"
+    source: "otel"
+    sourcetype: "otel"
+    max_connections: 20
+    disable_compression: false
+    timeout: 10s
+    insecure_skip_verify: true
+    insecure: true
+
+service:
+  pipelines:
+    logs:
+      receivers: [filelog]
+      exporters: [splunk_hec]
