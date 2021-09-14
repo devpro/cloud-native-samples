@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  busybox:
+    image: busybox
+    container_name: busybox
+    command: /bin/sh -c -- "while true ; do date ; sleep 10 ; done"
+    depends_on:
+      - otelcol
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:8006
+        tag: httpd.access
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otelcol
+    command: ["--config=/etc/otel-collector-config.yml"]
+    ports:
+      - 13133:13133
+      - 14250:14250
+      - 14268:14268
+      - 4317:4317
+      - 6060:6060
+      - 8888:8888
+      - 7276:7276
+      - 9943:9943
+      - 8006:8006
+    volumes:
+      - ./config/otel-collector.yaml:/etc/otel-collector-config.yml

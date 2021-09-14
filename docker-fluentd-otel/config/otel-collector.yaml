@@ -1,0 +1,15 @@
+receivers:
+  fluentforward:
+    endpoint: 0.0.0.0:8006
+
+exporters:
+  logging:
+    loglevel: debug
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+service:
+  pipelines:
+    logs:
+      receivers: [fluentforward]
+      exporters: [logging]
