@@ -1,4 +1,5 @@
 receivers:
+  # https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver
   otlp:
     protocols:
       grpc:
@@ -9,6 +10,7 @@ processors:
 exporters:
   logging:
     loglevel: debug
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/splunkhecexporter
   splunk_hec:
     token: "00000000-0000-0000-0000-0000000000000"
     endpoint: "http://splunk:8088/services/collector"
@@ -17,8 +19,8 @@ exporters:
     max_connections: 20
     disable_compression: false
     timeout: 10s
-    insecure_skip_verify: true
-    insecure: true
+    tls:
+      insecure_skip_verify: true
 
 extensions:
   health_check:
@@ -26,6 +28,14 @@ extensions:
 service:
   extensions: [health_check]
   pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging]
     traces:
       receivers: [otlp]
       processors: [batch]

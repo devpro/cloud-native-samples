@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using SplunkOpenTelemetrySample.WebApi.Dto;
 
 namespace SplunkOpenTelemetrySample.WebApi.Controllers
@@ -27,7 +22,7 @@ namespace SplunkOpenTelemetrySample.WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecastDto> Get()
         {
             var activity = Activity.Current;
@@ -44,7 +39,7 @@ namespace SplunkOpenTelemetrySample.WebApi.Controllers
                 .Select(index =>
                     new WeatherForecastDto
                     {
-                        Date = DateTime.Now.AddDays(index),
+                        Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                         TemperatureC = rng.Next(-20, 55),
                         Summary = s_summaries[rng.Next(s_summaries.Length)]
                     })
