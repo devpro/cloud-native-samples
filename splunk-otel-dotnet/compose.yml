@@ -1,24 +1,23 @@
-version: '3.8'
-
 services:
   webapi:
     build:
       context: .
       dockerfile: ./src/WebApi/Dockerfile
-    container_name: splunkoteldotnetsamplewebapi
+    container_name: dotnetsamplewebapi
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft=Information
       - Application__EnforceHttps=false
       - OpenTelemetryTracing__Enabled=true
-      - OpenTelemetryTracing__OtlpExporter__Endpoint=http://host.docker.internal:4317
+      - OpenTelemetryTracing__OtlpExporter__Endpoint=http://otelcollector:4317
     ports:
       - 8002:80
     depends_on:
-      - otelcol
-  otelcol:
+      - otelcollector
+  otelcollector:
     image: otel/opentelemetry-collector-contrib:0.26.0
-    container_name: otelcol
+    container_name: otelcollector
     command: ["--config=/etc/otel-collector-config.yml"]
     ports:
       - 13133:13133
@@ -30,7 +29,7 @@ services:
       - 7276:7276
       - 9943:9943
     volumes:
-      - ./docker/all-in/otel-collector.yaml:/etc/otel-collector-config.yml
+      - ./docker/otel-collector.yaml:/etc/otel-collector-config.yml
     depends_on:
       - splunk
   splunk:
@@ -48,4 +47,4 @@ services:
       timeout: 5s
       retries: 20
     volumes:
-      - ./docker/all-in/splunk.yml:/tmp/defaults/default.yml
+      - ./docker/splunk.yml:/tmp/defaults/default.yml
