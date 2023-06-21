@@ -356,3 +356,6 @@ local.env
 
 # WinMerge backup files
 *.bak
+
+# Terraform state files
+*.tfstate
