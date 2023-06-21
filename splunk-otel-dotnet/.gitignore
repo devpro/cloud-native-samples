@@ -357,6 +357,5 @@ local.env
 # WinMerge backup files
 *.bak
 
-# Local docker files
-docker/*.yaml
-docker/*.yml
+# Terraform state files
+*.tfstate

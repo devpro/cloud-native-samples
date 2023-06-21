@@ -1,8 +1,12 @@
 # Trace collection with Splunk & OpenTelemetry from a .NET application
 
-This is the result of a technical study, with a working example, on how to collect ASP.NET application execution information in Splunk thanks to OpenTelemetry library & collector.
+This is a working example on how to collect ASP.NET application execution information in Splunk thanks to OpenTelemetry (SDK & Collector).
 
-_TL;DR_ Run `docker-compose build; docker-compose up` from a Linux shell (works with WSL), open [API Swagger](http://localhost:8002/swagger) and send a request, open [Splunk](http://localhost:8000), search with `source="otel"` and look at the data that has been received!
+## TL;DR
+
+* Run `docker compose up`
+* Open [Web API Swagger](http://localhost:8002/swagger) and do some actions
+* Open [Splunk](http://localhost:8000) (login with admin/opentelemetry) and do a search with `source="otel"`
 
 ## Design
 
@@ -58,20 +62,6 @@ _TL;DR_ Run `docker-compose build; docker-compose up` from a Linux shell (works 
     * [OpenTelemetry Agent and Collector: Telemetry Built-in Into All Software](https://www.youtube.com/watch?v=cHiFSprUqa0) - September 4, 2020
     * [How OpenTelemetry is Eating the World](https://www.youtube.com/watch?v=DbaO0Xxv34c) - May 8, 2020
 
-### Containers
-
-Name | Image (Docker) | Repository
----- | ----- | ----------
-Splunk | `splunk/splunk` | [github.com/Splunk/docker-Splunk](https://github.com/Splunk/docker-Splunk)
-OpenTelemetry Contrib Collector | `otel/opentelemetry-collector-contrib` | [github.com/open-telemetry/opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib)
-
-### OpenTelemetry Collector components
-
-* Receivers
-  * [otlpreceiver](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver)
-* Exporters
-  * [splunkhecexporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/splunkhecexporter)
-
 ### Data flow
 
 * Data feed
@@ -91,10 +81,8 @@ Human
 
 ### HTTP streams
 
-* Ports
-
 Port | Reason
----- | ------
+-----|-----------------------------
 4317 | OpenTelemetry Collector gRPC
 8000 | Splunk web application
 8088 | Splunk HEC
@@ -187,26 +175,16 @@ docker run -p 13133:13133 -p 14250:14250 -p 14268:14268 -p 4317:4317 -p 6060:606
   --config otel-collector-config.yaml
 ```
 
-### All-in with Docker Compose
-
-```bash
-# create image
-docker-compose build
-
-# create containers
-docker-compose up
-```
-
 ## Debug code sample (.NET 5)
 
 ### Librairies (NuGet packages)
 
-Name | Reason | Links
----- | ------ | -----
-`OpenTelemetry.Exporter.OpenTelemetryProtocol` | The OTLP (OpenTelemetry Protocol) exporter communicates to an OpenTelemetry Collector through a gRPC protocol | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.OpenTelemetryProtocol/README.md), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Exporter.OpenTelemetryProtocol/)
-`OpenTelemetry.Extensions.Hosting` | Extension method for hosting | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Extensions.Hosting), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Extensions.Hosting)
-`OpenTelemetry.Instrumentation.Http` | Instruments `System.Net.Http.HttpClient` and `System.Net.HttpWebRequest` and collects telemetry about outgoing HTTP requests | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Instrumentation.Http/README.md), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Http)
-`OpenTelemetry.Instrumentation.AspNetCore` | Instruments ASP.NET Core and collect telemetry about incoming web requests (also collects incoming gRPC requests) | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Instrumentation.AspNetCore/README.md), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AspNetCore)
+Name                                           | Links
+-----------------------------------------------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`OpenTelemetry.Exporter.OpenTelemetryProtocol` | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.OpenTelemetryProtocol/README.md), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Exporter.OpenTelemetryProtocol/)
+`OpenTelemetry.Extensions.Hosting`             | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Extensions.Hosting), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Extensions.Hosting)
+`OpenTelemetry.Instrumentation.Http`           | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Instrumentation.Http/README.md), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Http)
+`OpenTelemetry.Instrumentation.AspNetCore`     | [GitHub](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Instrumentation.AspNetCore/README.md), [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.AspNetCore)
 
 ### Build locally
 

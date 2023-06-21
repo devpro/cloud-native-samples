@@ -1,0 +1,55 @@
+services:
+  webapi:
+    build:
+      context: .
+      dockerfile: ./src/WebApi/Dockerfile
+    container_name: dotnetsamplewebapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft=Information
+      - Application__IsHttpsRedirectionEnabled=false
+      - Application__IsOpenTelemetryEnabled=true
+      - Application__IsSwaggerEnabled=true
+      - OpenTelemetry__CollectorEndpoint=http://otelcollector:4317
+    ports:
+      - 8002:80
+    depends_on:
+      - otelcollector
+
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib
+  otelcollector:
+    image: otel/opentelemetry-collector-contrib:0.78.0
+    container_name: otelcollector
+    command: ["--config=/etc/otel-collector-config.yml"]
+    ports:
+      - 13133:13133 # health_check extension
+      - 14250:14250
+      - 14268:14268
+      - 4317:4317   # OTLP gRPC receiver
+      - 6060:6060
+      - 8888:8888   # Prometheus metrics exposed by the collector
+      - 7276:7276
+      - 9943:9943
+    volumes:
+      - ./.docker/otel-collector.yaml:/etc/otel-collector-config.yml
+    depends_on:
+      - splunk
+
+  # https://github.com/Splunk/docker-Splunk
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_PASSWORD=opentelemetry
+    ports:
+      - 8000:8000
+      - 8088:8088
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - ./.docker/splunk.yml:/tmp/defaults/default.yml
